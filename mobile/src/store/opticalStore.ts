@@ -70,6 +70,30 @@ function notify() {
 export const opticalStore = {
   getState: (): OpticalStoreState => state,
 
+  // Helper to generate sequential invoice numbers: INV00001, INV00002 ... INV00010 etc.
+  getNextInvoiceNumber: (): string => {
+    let maxNum = 0;
+    const allInvoices = [...state.invoices, ...mockInvoices];
+
+    allInvoices.forEach((inv) => {
+      if (inv && inv.invoiceNumber) {
+        // Match numbers after INV, #INV-, or standalone digits
+        const match = inv.invoiceNumber.match(/INV(\d+)/i) || inv.invoiceNumber.match(/(\d+)/);
+        if (match && match[1]) {
+          const parsed = parseInt(match[1], 10);
+          if (!isNaN(parsed) && parsed > maxNum) {
+            maxNum = parsed;
+          }
+        }
+      }
+    });
+
+    const nextSeq = maxNum + 1;
+    // Format with at least 5 digits: INV00001, INV00002 ... INV00010
+    const padded = String(nextSeq).padStart(5, '0');
+    return `INV${padded}`;
+  },
+
   // Sync initial state from backend database
   syncFromBackend: async () => {
     try {

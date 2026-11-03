@@ -66,7 +66,7 @@ export default function PaymentScreen() {
   const customerPhone = cart.selectedCustomer?.phone || '+91 99999 99999';
 
   const handleFinishPayment = () => {
-    const invNumber = `#INV-2026-0${10 + Math.floor(Math.random() * 89)}`;
+    const invNumber = opticalStore.getNextInvoiceNumber();
     const ordNumber = `#ORD-2026-00${8 + Math.floor(Math.random() * 89)}`;
 
     const actualPaid = Math.min(numericReceived, effectiveTotal);

@@ -205,7 +205,7 @@ export default function LoginScreen() {
       } else {
         Alert.alert(
           'Login Failed',
-          'गलत ईमेल या पासवर्ड! कृपया सही विवरण दर्ज करें।'
+          'Invalid email or password. Please check your credentials.'
         );
       }
     } catch (e: any) {
@@ -220,19 +220,19 @@ export default function LoginScreen() {
     const cleanConfirm = confirmPasswordInput.trim();
 
     if (!cleanNew) {
-      Alert.alert('Required', 'कृपया नया पासवर्ड दर्ज करें।');
+      Alert.alert('Required', 'Please enter your new password.');
       return;
     }
     if (cleanNew.length < 4) {
-      Alert.alert('Invalid', 'पासवर्ड कम से कम 4 अक्षरों का होना चाहिए।');
+      Alert.alert('Invalid', 'Password must be at least 4 characters long.');
       return;
     }
     if (cleanNew === '11111111') {
-      Alert.alert('Invalid', 'कृपया डिफ़ॉल्ट 11111111 के अलावा कोई नया सुरक्षित पासवर्ड चुनें।');
+      Alert.alert('Invalid', 'Please choose a password other than default 11111111.');
       return;
     }
     if (cleanNew !== cleanConfirm) {
-      Alert.alert('Mismatch', 'नया पासवर्ड और पुष्टि पासवर्ड मेल नहीं खाते।');
+      Alert.alert('Mismatch', 'New password and confirm password do not match.');
       return;
     }
 
@@ -246,14 +246,14 @@ export default function LoginScreen() {
 
       if (res && res.success) {
         setShowPasswordChangeModal(false);
-        Alert.alert('Success', 'पासवर्ड सफलतापूर्वक बदल दिया गया है!', [
+        Alert.alert('Success', 'Password successfully updated!', [
           { text: 'OK', onPress: () => router.replace('/(tabs)/dashboard') }
         ]);
       } else {
-        Alert.alert('Failed', res?.error || 'पासवर्ड बदलने में त्रुटि हुई।');
+        Alert.alert('Failed', res?.error || 'Failed to update password.');
       }
     } catch (err: any) {
-      Alert.alert('Error', err.message || 'सर्वर से संपर्क नहीं हो सका।');
+      Alert.alert('Error', err.message || 'Could not connect to server.');
     } finally {
       setChangingPassword(false);
     }
@@ -485,18 +485,18 @@ export default function LoginScreen() {
               <View style={styles.modalIconBox}>
                 <Lock size={24} color="#0D9488" />
               </View>
-              <Text style={styles.modalTitle}>नया पासवर्ड सेट करें</Text>
+              <Text style={styles.modalTitle}>Set New Password</Text>
               <Text style={styles.modalSubtitle}>
-                सुरक्षा के लिए, पहली बार लॉगिन पर डिफ़ॉल्ट पासवर्ड (11111111) बदलकर अपना नया पासवर्ड बनाएं।
+                For security, please change your default password (11111111) to a secure new password.
               </Text>
             </View>
 
             <View style={{ gap: 14, marginVertical: 18 }}>
               <View>
-                <Text style={styles.modalInputLabel}>नया पासवर्ड</Text>
+                <Text style={styles.modalInputLabel}>New Password</Text>
                 <TextInput
                   style={styles.modalInput}
-                  placeholder="अपना नया पासवर्ड दर्ज करें"
+                  placeholder="Enter your new password"
                   placeholderTextColor="#94A3B8"
                   secureTextEntry
                   value={newPasswordInput}
@@ -505,10 +505,10 @@ export default function LoginScreen() {
               </View>
 
               <View>
-                <Text style={styles.modalInputLabel}>नया पासवर्ड दोबारा दर्ज करें</Text>
+                <Text style={styles.modalInputLabel}>Confirm New Password</Text>
                 <TextInput
                   style={styles.modalInput}
-                  placeholder="पासवर्ड की पुष्टि करें"
+                  placeholder="Confirm your new password"
                   placeholderTextColor="#94A3B8"
                   secureTextEntry
                   value={confirmPasswordInput}
@@ -524,7 +524,7 @@ export default function LoginScreen() {
               activeOpacity={0.85}
             >
               <Text style={styles.modalSubmitBtnText}>
-                {changingPassword ? 'सेव हो रहा है...' : 'पासवर्ड सेव करें और जारी रखें'}
+                {changingPassword ? 'Saving Password...' : 'Save Password & Continue'}
               </Text>
             </TouchableOpacity>
           </View>

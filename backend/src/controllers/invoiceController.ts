@@ -40,7 +40,24 @@ export const getInvoiceById = async (req: Request, res: Response) => {
 export const createInvoice = async (req: Request, res: Response) => {
   try {
     const body = req.body;
-    const invNumber = body.invoiceNumber || `MG-2627-${Math.floor(1000 + Math.random() * 9000)}`;
+    let invNumber = body.invoiceNumber;
+
+    if (!invNumber) {
+      // Find highest existing invoice number sequentially
+      const lastInvoices = await InvoiceModel.find({}).select('invoiceNumber');
+      let maxNum = 0;
+      lastInvoices.forEach((inv: any) => {
+        if (inv && inv.invoiceNumber) {
+          const match = inv.invoiceNumber.match(/INV(\d+)/i) || inv.invoiceNumber.match(/(\d+)/);
+          if (match && match[1]) {
+            const parsed = parseInt(match[1], 10);
+            if (!isNaN(parsed) && parsed > maxNum) maxNum = parsed;
+          }
+        }
+      });
+      const nextSeq = maxNum + 1;
+      invNumber = `INV${String(nextSeq).padStart(5, '0')}`;
+    }
 
     const newInvoice = await InvoiceModel.create({
       invoiceNumber: invNumber,
