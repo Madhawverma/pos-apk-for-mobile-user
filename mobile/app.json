@@ -1,0 +1,45 @@
+{
+  "expo": {
+    "name": "Ankit Shop",
+    "slug": "ankit-shop",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.shreeganeshoptical.sehore"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#1E3A8A"
+      },
+      "package": "com.shreeganeshoptical.sehore"
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-status-bar",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/splash.png",
+          "resizeMode": "contain",
+          "backgroundColor": "#1E3A8A"
+        }
+      ],
+      "expo-sharing"
+    ],
+    "scheme": "ankitshop",
+    "extra": {
+      "shopName": "Ankit Shop",
+      "city": "Sehore",
+      "state": "Madhya Pradesh",
+      "phone": "+91 98260 00000",
+      "tagline": "Complete Eye Care & Quality Eyewear"
+    }
+  }
+}
