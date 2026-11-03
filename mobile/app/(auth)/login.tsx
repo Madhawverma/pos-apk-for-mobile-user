@@ -12,6 +12,7 @@ import {
   Alert,
   KeyboardAvoidingView,
   Platform,
+  Modal,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -168,6 +169,14 @@ export default function LoginScreen() {
   const [rememberMe, setRememberMe] = useState(true);
   const [loading, setLoading] = useState(false);
 
+  // Force Change Password Modal State
+  const [showPasswordChangeModal, setShowPasswordChangeModal] = useState(false);
+  const [newPasswordInput, setNewPasswordInput] = useState('');
+  const [confirmPasswordInput, setConfirmPasswordInput] = useState('');
+  const [changingPassword, setChangingPassword] = useState(false);
+  const [loggedInEmail, setLoggedInEmail] = useState('');
+  const [savedOldPassword, setSavedOldPassword] = useState('');
+
   const handleLogin = async () => {
     const cleanId = identifier.trim();
     const cleanPass = password.trim();
@@ -186,8 +195,13 @@ export default function LoginScreen() {
       });
 
       if (res && res.token) {
-        // Successfully verified from backend
-        router.replace('/(tabs)/dashboard');
+        if (res.mustChangePassword) {
+          setLoggedInEmail(cleanId);
+          setSavedOldPassword(cleanPass);
+          setShowPasswordChangeModal(true);
+        } else {
+          router.replace('/(tabs)/dashboard');
+        }
       } else {
         Alert.alert(
           'Login Failed',
@@ -198,6 +212,50 @@ export default function LoginScreen() {
       Alert.alert('Error', 'Unable to reach backend server. Please check your network.');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleSaveNewPassword = async () => {
+    const cleanNew = newPasswordInput.trim();
+    const cleanConfirm = confirmPasswordInput.trim();
+
+    if (!cleanNew) {
+      Alert.alert('Required', 'कृपया नया पासवर्ड दर्ज करें।');
+      return;
+    }
+    if (cleanNew.length < 4) {
+      Alert.alert('Invalid', 'पासवर्ड कम से कम 4 अक्षरों का होना चाहिए।');
+      return;
+    }
+    if (cleanNew === '11111111') {
+      Alert.alert('Invalid', 'कृपया डिफ़ॉल्ट 11111111 के अलावा कोई नया सुरक्षित पासवर्ड चुनें।');
+      return;
+    }
+    if (cleanNew !== cleanConfirm) {
+      Alert.alert('Mismatch', 'नया पासवर्ड और पुष्टि पासवर्ड मेल नहीं खाते।');
+      return;
+    }
+
+    setChangingPassword(true);
+    try {
+      const res = await apiService.changePassword({
+        email: loggedInEmail,
+        oldPassword: savedOldPassword,
+        newPassword: cleanNew,
+      });
+
+      if (res && res.success) {
+        setShowPasswordChangeModal(false);
+        Alert.alert('Success', 'पासवर्ड सफलतापूर्वक बदल दिया गया है!', [
+          { text: 'OK', onPress: () => router.replace('/(tabs)/dashboard') }
+        ]);
+      } else {
+        Alert.alert('Failed', res?.error || 'पासवर्ड बदलने में त्रुटि हुई।');
+      }
+    } catch (err: any) {
+      Alert.alert('Error', err.message || 'सर्वर से संपर्क नहीं हो सका।');
+    } finally {
+      setChangingPassword(false);
     }
   };
 
@@ -410,6 +468,68 @@ export default function LoginScreen() {
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
+
+      {/* Force Change Password Modal */}
+      <Modal
+        visible={showPasswordChangeModal}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={() => {}}
+      >
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+          style={styles.modalOverlay}
+        >
+          <View style={styles.modalCard}>
+            <View style={styles.modalHeader}>
+              <View style={styles.modalIconBox}>
+                <Lock size={24} color="#0D9488" />
+              </View>
+              <Text style={styles.modalTitle}>नया पासवर्ड सेट करें</Text>
+              <Text style={styles.modalSubtitle}>
+                सुरक्षा के लिए, पहली बार लॉगिन पर डिफ़ॉल्ट पासवर्ड (11111111) बदलकर अपना नया पासवर्ड बनाएं।
+              </Text>
+            </View>
+
+            <View style={{ gap: 14, marginVertical: 18 }}>
+              <View>
+                <Text style={styles.modalInputLabel}>नया पासवर्ड</Text>
+                <TextInput
+                  style={styles.modalInput}
+                  placeholder="अपना नया पासवर्ड दर्ज करें"
+                  placeholderTextColor="#94A3B8"
+                  secureTextEntry
+                  value={newPasswordInput}
+                  onChangeText={setNewPasswordInput}
+                />
+              </View>
+
+              <View>
+                <Text style={styles.modalInputLabel}>नया पासवर्ड दोबारा दर्ज करें</Text>
+                <TextInput
+                  style={styles.modalInput}
+                  placeholder="पासवर्ड की पुष्टि करें"
+                  placeholderTextColor="#94A3B8"
+                  secureTextEntry
+                  value={confirmPasswordInput}
+                  onChangeText={setConfirmPasswordInput}
+                />
+              </View>
+            </View>
+
+            <TouchableOpacity
+              style={[styles.modalSubmitBtn, changingPassword && { opacity: 0.7 }]}
+              onPress={handleSaveNewPassword}
+              disabled={changingPassword}
+              activeOpacity={0.85}
+            >
+              <Text style={styles.modalSubmitBtnText}>
+                {changingPassword ? 'सेव हो रहा है...' : 'पासवर्ड सेव करें और जारी रखें'}
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </KeyboardAvoidingView>
+      </Modal>
     </View>
   );
 }
@@ -677,5 +797,81 @@ const styles = StyleSheet.create({
     fontWeight: '400',
     textAlign: 'center',
     lineHeight: 12,
+  },
+
+  /* Modal Styles */
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.65)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  modalCard: {
+    width: '100%',
+    maxWidth: 380,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 24,
+    padding: 24,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.25,
+    shadowRadius: 20,
+    elevation: 10,
+  },
+  modalHeader: {
+    alignItems: 'center',
+    textAlign: 'center',
+  },
+  modalIconBox: {
+    width: 54,
+    height: 54,
+    borderRadius: 27,
+    backgroundColor: '#E6FFFA',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 12,
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: '800',
+    color: '#0F172A',
+    marginBottom: 6,
+  },
+  modalSubtitle: {
+    fontSize: 12.5,
+    color: '#64748B',
+    textAlign: 'center',
+    lineHeight: 18,
+    paddingHorizontal: 8,
+  },
+  modalInputLabel: {
+    fontSize: 12.5,
+    fontWeight: '600',
+    color: '#334155',
+    marginBottom: 6,
+  },
+  modalInput: {
+    backgroundColor: '#F8FAFC',
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    borderRadius: 12,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    fontSize: 14,
+    color: '#0F172A',
+  },
+  modalSubmitBtn: {
+    backgroundColor: '#0D9488',
+    borderRadius: 14,
+    paddingVertical: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 8,
+  },
+  modalSubmitBtnText: {
+    color: '#FFFFFF',
+    fontSize: 14.5,
+    fontWeight: '700',
   },
 });
