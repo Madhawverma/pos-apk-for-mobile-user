@@ -59,6 +59,11 @@ export const apiService = {
       method: 'POST',
       body: JSON.stringify(credentials),
     }),
+  changePassword: (data: { email: string; oldPassword: string; newPassword: string }) =>
+    request<any>('/auth/change-password', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
 
   // Products
   getProducts: () => request<any[]>('/products'),
