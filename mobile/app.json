@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "Ankit Shop",
-    "slug": "ankit-shop",
+    "name": "Shree Ganesh Optical",
+    "slug": "shree-ganesh-optical",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -13,7 +13,7 @@
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#1E3A8A"
+        "backgroundColor": "#04281B"
       },
       "package": "com.shreeganeshoptical.sehore"
     },
@@ -28,17 +28,17 @@
         {
           "image": "./assets/splash.png",
           "resizeMode": "contain",
-          "backgroundColor": "#1E3A8A"
+          "backgroundColor": "#04281B"
         }
       ],
       "expo-sharing"
     ],
-    "scheme": "ankitshop",
+    "scheme": "shreeganeshoptical",
     "extra": {
-      "shopName": "Ankit Shop",
+      "shopName": "Shree Ganesh Optical",
       "city": "Sehore",
       "state": "Madhya Pradesh",
-      "phone": "+91 98260 00000",
+      "phone": "+91 6263732857",
       "tagline": "Complete Eye Care & Quality Eyewear"
     }
   }
