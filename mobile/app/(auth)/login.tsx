@@ -412,23 +412,6 @@ export default function LoginScreen() {
                 <Text style={styles.loginBtnText}>{loading ? 'Verifying...' : 'Login'}</Text>
                 <ArrowRight size={18} color="#FFFFFF" strokeWidth={2.5} style={styles.loginBtnIcon} />
               </TouchableOpacity>
-
-              {/* OR Divider */}
-              <View style={styles.dividerRow}>
-                <View style={styles.dividerLine} />
-                <Text style={styles.dividerText}>OR</Text>
-                <View style={styles.dividerLine} />
-              </View>
-
-              {/* Continue with Google Button */}
-              <TouchableOpacity
-                style={styles.googleBtn}
-                onPress={handleGoogleLogin}
-                activeOpacity={0.88}
-              >
-                <GoogleIcon size={19} />
-                <Text style={styles.googleBtnText}>Continue with Google</Text>
-              </TouchableOpacity>
             </View>
           </View>
 
