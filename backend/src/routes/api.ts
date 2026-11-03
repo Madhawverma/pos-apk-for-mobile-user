@@ -24,7 +24,7 @@ import {
   createInvoice,
 } from '../controllers/invoiceController';
 import { getDashboardStats } from '../controllers/dashboardController';
-import { login } from '../controllers/authController';
+import { login, changePassword } from '../controllers/authController';
 
 const router = Router();
 
@@ -39,6 +39,7 @@ router.get('/health', (req, res) => {
 
 // Authentication
 router.post('/auth/login', login);
+router.post('/auth/change-password', changePassword);
 
 // Products
 router.get('/products', getProducts);
