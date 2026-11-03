@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
-import { usersDB } from '../db';
-import { DEFAULT_ADMIN_EMAIL, DEFAULT_ADMIN_PASS } from '../seed';
+import { UserModel } from '../models/User';
+import { DEFAULT_ADMIN_EMAIL, DEFAULT_ADMIN_PASS, DEFAULT_ADMIN_NAME } from '../seed';
 
 export const login = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -16,17 +16,16 @@ export const login = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    // Check user in database or fallback to guaranteed seed
-    let user: any = await usersDB.findOne({ email: loginUser });
+    let user = await UserModel.findOne({ email: loginUser });
 
-    // If matching default credentials even before seed runs
+    // Fallback if database is fresh and matching env
     if (!user && loginUser === DEFAULT_ADMIN_EMAIL.toLowerCase()) {
-      user = {
+      user = await UserModel.create({
         email: DEFAULT_ADMIN_EMAIL.toLowerCase(),
         password: DEFAULT_ADMIN_PASS,
-        name: 'अंकित वर्मा (Ankit Verma)',
+        name: DEFAULT_ADMIN_NAME,
         role: 'admin',
-      };
+      });
     }
 
     if (!user || user.password !== loginPass) {
@@ -40,17 +39,65 @@ export const login = async (req: Request, res: Response): Promise<void> => {
     res.json({
       success: true,
       data: {
-        id: user._id || 'admin_1',
+        id: user.id || user._id,
         email: user.email,
-        name: user.name || 'अंकित वर्मा (Ankit Verma)',
+        name: user.name || DEFAULT_ADMIN_NAME,
         role: user.role || 'admin',
+        mustChangePassword: !!(user as any).mustChangePassword,
         token: 'token_' + Date.now(),
       },
     });
   } catch (error: any) {
-    res.status(500).json({
-      success: false,
-      error: error.message || 'Internal login error',
+    res.status(500).json({ success: false, error: error.message });
+  }
+};
+
+export const changePassword = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { email, oldPassword, newPassword } = req.body;
+    const userEmail = (email || '').trim().toLowerCase();
+    const cleanOld = (oldPassword || '').trim();
+    const cleanNew = (newPassword || '').trim();
+
+    if (!userEmail || !cleanOld || !cleanNew) {
+      res.status(400).json({
+        success: false,
+        error: 'Email, current password, and new password are required.',
+      });
+      return;
+    }
+
+    if (cleanNew.length < 4) {
+      res.status(400).json({
+        success: false,
+        error: 'New password must be at least 4 characters long.',
+      });
+      return;
+    }
+
+    const user: any = await UserModel.findOne({ email: userEmail });
+    if (!user || user.password !== cleanOld) {
+      res.status(401).json({
+        success: false,
+        error: 'Current password is incorrect.',
+      });
+      return;
+    }
+
+    user.password = cleanNew;
+    user.mustChangePassword = false;
+    await user.save();
+
+    res.json({
+      success: true,
+      message: 'Password successfully updated!',
+      data: {
+        email: user.email,
+        name: user.name,
+        mustChangePassword: false,
+      },
     });
+  } catch (error: any) {
+    res.status(500).json({ success: false, error: error.message });
   }
 };

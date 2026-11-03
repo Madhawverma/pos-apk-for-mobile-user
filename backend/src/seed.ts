@@ -1,36 +1,30 @@
-import { usersDB } from './db';
+import { UserModel } from './models/User';
+import dotenv from 'dotenv';
 
-// Fixed, never-changing admin credentials as requested
-export const DEFAULT_ADMIN_EMAIL = 'ankit@ganeshoptical.com';
-export const DEFAULT_ADMIN_PASS = 'Gnesh_optical';
+dotenv.config();
+
+export const DEFAULT_ADMIN_EMAIL = (process.env.ADMIN_EMAIL || 'ankit@ganeshoptical.com').toLowerCase().trim();
+export const DEFAULT_ADMIN_PASS = process.env.ADMIN_PASSWORD || '11111111';
+export const DEFAULT_ADMIN_NAME = process.env.ADMIN_NAME || 'अंकित वर्मा (Ankit Verma)';
 
 export const seedDatabase = async () => {
   try {
-    const existing = await usersDB.findOne({ email: DEFAULT_ADMIN_EMAIL.toLowerCase() });
+    const email = DEFAULT_ADMIN_EMAIL;
+    const existing = await UserModel.findOne({ email });
     if (!existing) {
-      await usersDB.insert({
-        email: DEFAULT_ADMIN_EMAIL.toLowerCase(),
+      await UserModel.create({
+        email,
         password: DEFAULT_ADMIN_PASS,
-        name: 'अंकित वर्मा (Ankit Verma)',
+        name: DEFAULT_ADMIN_NAME,
         role: 'admin',
-        createdAt: new Date().toISOString(),
+        mustChangePassword: true,
       });
-      console.log(`[Seed] Seeded default never-changing admin account: ${DEFAULT_ADMIN_EMAIL}`);
+      console.log(`[MongoDB Atlas] Created initial admin account ${email} with default password`);
     } else {
-      // Ensure password and details always stay synchronized with requested credentials
-      await usersDB.update(
-        { email: DEFAULT_ADMIN_EMAIL.toLowerCase() },
-        {
-          $set: {
-            password: DEFAULT_ADMIN_PASS,
-            name: 'अंकित वर्मा (Ankit Verma)',
-            role: 'admin',
-          },
-        }
-      );
-      console.log(`[Seed] Verified never-changing credentials for ${DEFAULT_ADMIN_EMAIL}`);
+      // Keep existing user or sync if password was reset
+      console.log(`[MongoDB Atlas] Verified admin account ${email}`);
     }
   } catch (error) {
-    console.error('[Seed] Error seeding users:', error);
+    console.error('[MongoDB Atlas] Error seeding users:', error);
   }
 };

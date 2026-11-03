@@ -1,21 +1,23 @@
 import { Request, Response } from 'express';
-import { ordersDB, productsDB, customersDB, invoicesDB } from '../db';
+import { OrderModel } from '../models/Order';
+import { ProductModel } from '../models/Product';
+import { CustomerModel } from '../models/Customer';
 
 export const getDashboardStats = async (req: Request, res: Response) => {
   try {
-    const ordersList: any[] = await ordersDB.find({});
+    const ordersList = await OrderModel.find({});
     const totalSales = ordersList.reduce((sum, o) => sum + (Number(o.total) || 0), 0);
     const totalOrders = ordersList.length;
     const pendingOrders = ordersList.filter(
       (o) => o.orderStatus !== 'Delivered' && o.orderStatus !== 'Cancelled'
     ).length;
 
-    const productsList: any[] = await productsDB.find({});
+    const productsList = await ProductModel.find({});
     const lowStockCount = productsList.filter(
       (p) => (Number(p.stock) || 0) <= (Number(p.minStockAlert) || 5)
     ).length;
 
-    const totalCustomers = await customersDB.count({});
+    const totalCustomers = await CustomerModel.countDocuments({});
 
     res.json({
       success: true,

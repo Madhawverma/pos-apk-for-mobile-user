@@ -1,46 +1,21 @@
-import path from 'path';
-import Datastore from 'nedb-promises';
 import mongoose from 'mongoose';
+import dotenv from 'dotenv';
 
-const dataDir = path.join(__dirname, '..', 'data_storage');
-
-export const usersDB = Datastore.create({
-  filename: path.join(dataDir, 'users.db'),
-  autoload: true,
-});
-
-export const productsDB = Datastore.create({
-  filename: path.join(dataDir, 'products.db'),
-  autoload: true,
-});
-
-export const customersDB = Datastore.create({
-  filename: path.join(dataDir, 'customers.db'),
-  autoload: true,
-});
-
-export const ordersDB = Datastore.create({
-  filename: path.join(dataDir, 'orders.db'),
-  autoload: true,
-});
-
-export const invoicesDB = Datastore.create({
-  filename: path.join(dataDir, 'invoices.db'),
-  autoload: true,
-});
+dotenv.config();
 
 export const connectMongoDB = async () => {
   const uri = process.env.MONGODB_URI;
   if (!uri) {
-    console.log('[Database] No MONGODB_URI found, using NeDB storage.');
-    return;
+    console.error('[Database Fatal] MONGODB_URI is not defined in .env!');
+    process.exit(1);
   }
   try {
     await mongoose.connect(uri);
-    console.log('[Database] MongoDB Atlas Connected Successfully!');
+    console.log('[Database] MongoDB Atlas Connected Successfully! (Pure Cloud Storage)');
   } catch (err: any) {
-    console.warn('[Database] MongoDB Atlas Connection Error (using NeDB fallback):', err.message);
+    console.error('[Database Fatal] MongoDB Atlas Connection Failed:', err.message);
+    process.exit(1);
   }
 };
 
-console.log('[Database] Embedded NeDB storage ready at:', dataDir);
+export default mongoose;

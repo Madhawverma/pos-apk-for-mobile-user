@@ -1,13 +1,12 @@
 import { Request, Response } from 'express';
-import { invoicesDB } from '../db';
 import { InvoiceModel } from '../models/Invoice';
 
 export const getInvoices = async (req: Request, res: Response) => {
   try {
-    const items = await invoicesDB.find({}).sort({ createdAt: -1 });
+    const items = await InvoiceModel.find({}).sort({ createdAt: -1 });
     const formatted = items.map((inv: any) => ({
-      ...inv,
-      id: inv.id || inv._id,
+      ...inv.toObject(),
+      id: inv.invoiceNumber || inv.id || inv._id.toString(),
     }));
     res.json({ success: true, count: formatted.length, data: formatted });
   } catch (error: any) {
@@ -17,13 +16,22 @@ export const getInvoices = async (req: Request, res: Response) => {
 
 export const getInvoiceById = async (req: Request, res: Response) => {
   try {
-    const invoice: any = await invoicesDB.findOne({
-      $or: [{ id: req.params.id }, { _id: req.params.id }, { invoiceNumber: req.params.id }],
-    });
+    const id = req.params.id;
+    let invoice: any = null;
+    if (id.match(/^[0-9a-fA-F]{24}$/)) {
+      invoice = await InvoiceModel.findById(id);
+    }
+    if (!invoice) {
+      invoice = await InvoiceModel.findOne({ invoiceNumber: id });
+    }
+
     if (!invoice) {
       return res.status(404).json({ success: false, message: 'Invoice not found' });
     }
-    res.json({ success: true, data: { ...invoice, id: invoice.id || invoice._id } });
+    res.json({
+      success: true,
+      data: { ...invoice.toObject(), id: invoice.invoiceNumber || invoice.id || invoice._id.toString() },
+    });
   } catch (error: any) {
     res.status(500).json({ success: false, message: error.message });
   }
@@ -34,8 +42,7 @@ export const createInvoice = async (req: Request, res: Response) => {
     const body = req.body;
     const invNumber = body.invoiceNumber || `MG-2627-${Math.floor(1000 + Math.random() * 9000)}`;
 
-    const newInvoice = {
-      id: body.id || `inv-${Date.now()}`,
+    const newInvoice = await InvoiceModel.create({
       invoiceNumber: invNumber,
       date: body.date || new Date().toLocaleDateString('en-GB'),
       time: body.time || new Date().toLocaleTimeString('en-US'),
@@ -49,19 +56,35 @@ export const createInvoice = async (req: Request, res: Response) => {
       paidAmount: Number(body.paidAmount || body.total || 0),
       dueAmount: Number(body.dueAmount || 0),
       status: body.status || 'Paid',
-      paymentMethod: body.paymentMethod || 'Cash',
-      createdAt: new Date().toISOString(),
-    };
+      paymentMethod: body.paymentMethod || 'UPI',
+    });
 
-    const inserted: any = await invoicesDB.insert(newInvoice);
+    res.status(201).json({
+      success: true,
+      data: { ...newInvoice.toObject(), id: newInvoice.invoiceNumber || newInvoice.id || newInvoice._id.toString() },
+    });
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
 
-    // Sync to MongoDB Atlas
-    InvoiceModel.create({
-      ...newInvoice,
-      _id: undefined,
-    }).catch((e) => console.log('[Atlas Invoice Sync]:', e.message));
+export const updateInvoice = async (req: Request, res: Response) => {
+  try {
+    const id = req.params.id;
+    let filter: any = { invoiceNumber: id };
+    if (id.match(/^[0-9a-fA-F]{24}$/)) {
+      filter = { $or: [{ _id: id }, { invoiceNumber: id }] };
+    }
 
-    res.status(201).json({ success: true, data: { ...inserted, id: inserted.id || inserted._id } });
+    const updated = await InvoiceModel.findOneAndUpdate(filter, req.body, { new: true });
+    if (!updated) {
+      return res.status(404).json({ success: false, message: 'Invoice not found' });
+    }
+
+    res.json({
+      success: true,
+      data: { ...updated.toObject(), id: updated.invoiceNumber || updated.id || updated._id.toString() },
+    });
   } catch (error: any) {
     res.status(500).json({ success: false, message: error.message });
   }

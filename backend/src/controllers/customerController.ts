@@ -1,5 +1,4 @@
 import { Request, Response } from 'express';
-import { customersDB } from '../db';
 import { CustomerModel } from '../models/Customer';
 
 export const getCustomers = async (req: Request, res: Response) => {
@@ -12,10 +11,10 @@ export const getCustomers = async (req: Request, res: Response) => {
       query.$or = [{ name: reg }, { phone: reg }, { email: reg }];
     }
 
-    const items = await customersDB.find(query).sort({ createdAt: -1 });
+    const items = await CustomerModel.find(query).sort({ createdAt: -1 });
     const formatted = items.map((c: any) => ({
-      ...c,
-      id: c.id || c._id,
+      ...c.toObject(),
+      id: c.id || c._id.toString(),
     }));
 
     res.json({ success: true, count: formatted.length, data: formatted });
@@ -26,13 +25,21 @@ export const getCustomers = async (req: Request, res: Response) => {
 
 export const getCustomerById = async (req: Request, res: Response) => {
   try {
-    const customer: any = await customersDB.findOne({
-      $or: [{ id: req.params.id }, { _id: req.params.id }, { phone: req.params.id }],
-    });
+    const id = req.params.id;
+    let customer: any = null;
+    if (id.match(/^[0-9a-fA-F]{24}$/)) {
+      customer = await CustomerModel.findById(id);
+    }
+    if (!customer) {
+      customer = await CustomerModel.findOne({
+        $or: [{ phone: id }],
+      });
+    }
+
     if (!customer) {
       return res.status(404).json({ success: false, message: 'Customer not found' });
     }
-    res.json({ success: true, data: { ...customer, id: customer.id || customer._id } });
+    res.json({ success: true, data: { ...customer.toObject(), id: customer.id || customer._id.toString() } });
   } catch (error: any) {
     res.status(500).json({ success: false, message: error.message });
   }
@@ -45,8 +52,7 @@ export const createCustomer = async (req: Request, res: Response) => {
       return res.status(400).json({ success: false, message: 'Name and phone are required' });
     }
 
-    const newCustomer = {
-      id: req.body.id || `cust-${Date.now()}`,
+    const newCustomer = await CustomerModel.create({
       name,
       phone,
       email: email || '',
@@ -56,15 +62,12 @@ export const createCustomer = async (req: Request, res: Response) => {
       totalSpent: 0,
       totalPurchases: 0,
       prescriptions: prescriptions || [],
-      createdAt: new Date().toISOString(),
-    };
+    });
 
-    const inserted: any = await customersDB.insert(newCustomer);
-
-    // Sync to MongoDB Atlas in background
-    CustomerModel.create(newCustomer).catch((e) => console.log('[Atlas Sync Error]:', e.message));
-
-    res.status(201).json({ success: true, data: { ...inserted, id: inserted.id || inserted._id } });
+    res.status(201).json({
+      success: true,
+      data: { ...newCustomer.toObject(), id: newCustomer.id || newCustomer._id.toString() },
+    });
   } catch (error: any) {
     res.status(500).json({ success: false, message: error.message });
   }
@@ -72,30 +75,40 @@ export const createCustomer = async (req: Request, res: Response) => {
 
 export const updateCustomer = async (req: Request, res: Response) => {
   try {
-    const updateData = { ...req.body, updatedAt: new Date().toISOString() };
-    delete updateData._id;
+    const id = req.params.id;
+    let filter: any = { phone: id };
+    if (id.match(/^[0-9a-fA-F]{24}$/)) {
+      filter = { $or: [{ _id: id }, { phone: id }] };
+    }
 
-    await customersDB.update(
-      { $or: [{ id: req.params.id }, { _id: req.params.id }] },
-      { $set: updateData },
-      {}
-    );
-
-    // Sync to MongoDB Atlas
-    CustomerModel.updateOne(
-      { $or: [{ phone: updateData.phone }, { name: updateData.name }] },
-      { $set: updateData }
-    ).catch(() => {});
-
-    const updated: any = await customersDB.findOne({
-      $or: [{ id: req.params.id }, { _id: req.params.id }],
-    });
-
+    const updated = await CustomerModel.findOneAndUpdate(filter, req.body, { new: true });
     if (!updated) {
       return res.status(404).json({ success: false, message: 'Customer not found' });
     }
 
-    res.json({ success: true, data: { ...updated, id: updated.id || updated._id } });
+    res.json({
+      success: true,
+      data: { ...updated.toObject(), id: updated.id || updated._id.toString() },
+    });
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+export const deleteCustomer = async (req: Request, res: Response) => {
+  try {
+    const id = req.params.id;
+    let filter: any = { phone: id };
+    if (id.match(/^[0-9a-fA-F]{24}$/)) {
+      filter = { $or: [{ _id: id }, { phone: id }] };
+    }
+
+    const deleted = await CustomerModel.findOneAndDelete(filter);
+    if (!deleted) {
+      return res.status(404).json({ success: false, message: 'Customer not found' });
+    }
+
+    res.json({ success: true, message: 'Customer deleted successfully' });
   } catch (error: any) {
     res.status(500).json({ success: false, message: error.message });
   }
