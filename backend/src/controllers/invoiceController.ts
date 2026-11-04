@@ -1,12 +1,18 @@
 import { Request, Response } from 'express';
 import { InvoiceModel } from '../models/Invoice';
 
+const SHOP_HEADER = '🙏 *श्री गणेश ऑप्टिकल, सीहोर* 🙏';
+const SHOP_ADDRESS = '_ASG Eye Hospital के पास, इंग्लिशपुरा, सीहोर (म.प्र.)_';
+const SHOP_PHONE = '📞 संपर्क: +91 6263732857';
+
 export const getInvoices = async (req: Request, res: Response) => {
   try {
     const items = await InvoiceModel.find({}).sort({ createdAt: -1 });
     const formatted = items.map((inv: any) => ({
       ...inv.toObject(),
       id: inv.invoiceNumber || inv.id || inv._id.toString(),
+      shopAddress: 'ASG Eye Hospital के पास, इंग्लिशपुरा, सीहोर (म.प्र.)',
+      shopPhone: '+91 6263732857',
     }));
     res.json({ success: true, count: formatted.length, data: formatted });
   } catch (error: any) {
@@ -28,9 +34,57 @@ export const getInvoiceById = async (req: Request, res: Response) => {
     if (!invoice) {
       return res.status(404).json({ success: false, message: 'Invoice not found' });
     }
+
+    const invObj = invoice.toObject();
+    const customerName = invObj.customerName || invObj.customer?.name || 'Customer';
+    const items = invObj.items || [];
+    const itemsFormatted = items
+      .map(
+        (it: any, idx: number) =>
+          `${idx + 1}. *${it.description}*\n   Qty: ${it.qty} × ₹${Number(it.unitPrice || it.amount / it.qty).toLocaleString('en-IN')} = *₹${Number(it.amount).toLocaleString('en-IN')}*`
+      )
+      .join('\n');
+
+    const totalPaid = invObj.paidAmount !== undefined ? invObj.paidAmount : invObj.total;
+    const dueAmount = invObj.dueAmount || 0;
+    const statusText = dueAmount <= 0 ? 'सफल / PAID ✓' : 'बाकी / DUE';
+
+    // WhatsApp Bill Template generated completely from backend
+    const whatsappMessage = `${SHOP_HEADER}
+${SHOP_ADDRESS}
+${SHOP_PHONE}
+━━━━━━━━━━━━━━━━━━━━
+प्रिय *${customerName}* जी, नमस्ते! 🙏
+
+*श्री गणेश ऑप्टिकल से खरीदारी करने के लिए आपका बहुत-बहुत धन्यवाद!* 👓✨
+
+और भी शानदार एवं बेस्ट क्वालिटी के चश्मे (Frames, Sunglasses, Lenses) खरीदने के लिए हमेशा हमसे संपर्क करें।
+━━━━━━━━━━━━━━━━━━━━
+📄 *बिल / रसीद विवरण:*
+• बिल संख्या (Invoice No): *${invObj.invoiceNumber}*
+• दिनांक (Date): *${invObj.date}*
+• समय (Time): *${invObj.time}*
+• भुगतान का माध्यम: *${invObj.paymentMethod || 'Cash'}*
+• कुल भुगतान (Total Paid): *₹${Number(totalPaid).toLocaleString('en-IN')}*
+• स्थिति (Status): *${statusText}*
+${dueAmount > 0 ? `• शेष राशि (Due): *₹${Number(dueAmount).toLocaleString('en-IN')}*\n` : ''}
+🛒 *खरीदे गए उत्पाद (Items):*
+${itemsFormatted}
+━━━━━━━━━━━━━━━━━━━━
+📎 *आपकी इनवॉइस रसीद (PDF Bill) संलग्न है, कृपया चेक करें।* 📄
+
+श्री गणेश ऑप्टिकल आपके उत्तम स्वास्थ्य व सुंदर दृष्टि की कामना करता है! 💐`;
+
     res.json({
       success: true,
-      data: { ...invoice.toObject(), id: invoice.invoiceNumber || invoice.id || invoice._id.toString() },
+      data: {
+        ...invObj,
+        id: invObj.invoiceNumber || invObj.id || invObj._id.toString(),
+        tax: 0, // Tax removed as requested
+        shopAddress: 'ASG Eye Hospital के पास, इंग्लिशपुरा, सीहोर (म.प्र.)',
+        shopPhone: '+91 6263732857',
+        whatsappMessage,
+      },
     });
   } catch (error: any) {
     res.status(500).json({ success: false, message: error.message });
@@ -59,21 +113,28 @@ export const createInvoice = async (req: Request, res: Response) => {
       invNumber = `INV${String(nextSeq).padStart(5, '0')}`;
     }
 
+    const subtotal = Number(body.subtotal || body.total || 0);
+    const discount = Number(body.discount || 0);
+    const total = Number(body.total || subtotal - discount);
+
     const newInvoice = await InvoiceModel.create({
       invoiceNumber: invNumber,
-      date: body.date || new Date().toLocaleDateString('en-GB'),
-      time: body.time || new Date().toLocaleTimeString('en-US'),
+      date: body.date || new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
+      time: body.time || new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }),
       customer: body.customer,
       customerName: body.customerName || body.customer?.name || 'Customer',
       customerPhone: body.customerPhone || body.customer?.phone || '',
       itemCount: body.itemCount || body.items?.length || 1,
       itemType: body.itemType || 'frame',
       items: body.items || [],
-      total: Number(body.total || 0),
-      paidAmount: Number(body.paidAmount || body.total || 0),
+      subtotal,
+      discount,
+      tax: 0, // Tax completely removed from bill calculation
+      total,
+      paidAmount: Number(body.paidAmount !== undefined ? body.paidAmount : total),
       dueAmount: Number(body.dueAmount || 0),
       status: body.status || 'Paid',
-      paymentMethod: body.paymentMethod || 'UPI',
+      paymentMethod: body.paymentMethod || 'Cash',
     });
 
     res.status(201).json({
