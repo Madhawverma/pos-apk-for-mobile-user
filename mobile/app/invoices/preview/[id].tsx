@@ -63,7 +63,7 @@ export default function InvoicePreviewScreen() {
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <View style={styles.invoicePaper}>
         <Text style={styles.storeName}>🙏 श्री गणेश ऑप्टिकल, सीहोर 🙏</Text>
-        <Text style={styles.storeAddr}>ASG Eye Hospital के पास, इंग्लिशिपुरा, सीहोर (म.प्र.) - 466001</Text>
+        <Text style={styles.storeAddr}>ASG Eye Hospital के पास, इंग्लिशपुरा, सीहोर (म.प्र.)</Text>
         <Text style={styles.storeGst}>📞 संपर्क: +91 6263732857 • प्रो. माधव वर्मा</Text>
 
         <View style={styles.divider} />

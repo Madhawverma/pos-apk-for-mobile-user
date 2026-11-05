@@ -31,15 +31,27 @@
           "backgroundColor": "#04281B"
         }
       ],
-      "expo-sharing"
+      "expo-sharing",
+      "expo-updates"
     ],
+    "updates": {
+      "url": "https://u.expo.dev/85a8a2be-b5f3-45d3-b83f-f2ac60fa899c"
+    },
     "scheme": "shreeganeshoptical",
     "extra": {
       "shopName": "Shree Ganesh Optical",
       "city": "Sehore",
       "state": "Madhya Pradesh",
       "phone": "+91 6263732857",
-      "tagline": "Complete Eye Care & Quality Eyewear"
+      "tagline": "Complete Eye Care & Quality Eyewear",
+      "router": {
+        "asyncRoutes": {
+          "web": true
+        }
+      },
+      "eas": {
+        "projectId": "85a8a2be-b5f3-45d3-b83f-f2ac60fa899c"
+      }
     }
   }
 }

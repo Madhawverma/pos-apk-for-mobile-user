@@ -6,7 +6,7 @@
 export const CURRENT_WIFI_URL = 'http://192.168.1.26:5000/api';
 
 // Render Production URL, Localhost fallback and local Wi-Fi IP for testing
-export const RENDER_URL = process.env.EXPO_PUBLIC_API_URL || 'https://ankit-shop-backend.onrender.com/api';
+export const RENDER_URL = process.env.EXPO_PUBLIC_API_URL || 'https://pos-apk-for-mobile-user-1.onrender.com/api';
 export const LOCAL_BASE_URL = 'http://127.0.0.1:5000/api';
 export const LOCALHOST_URL = 'http://localhost:5000/api';
 export const API_BASE_URL = 'http://10.52.100.127:5000/api';
@@ -15,8 +15,8 @@ export const API_BASE_URL = 'http://10.52.100.127:5000/api';
 const API_SECRET_KEY = process.env.EXPO_PUBLIC_API_KEY || 'shree-ganesh-optical-secret-key-2026';
 
 async function request<T>(endpoint: string, options?: RequestInit): Promise<T | null> {
-  // Try local machine/Wi-Fi endpoints first with quick timeout (3s), then Render cloud URL
-  const candidateUrls = [LOCAL_BASE_URL, LOCALHOST_URL, CURRENT_WIFI_URL, API_BASE_URL, RENDER_URL];
+  // Always try active Render production URL first, then local fallbacks
+  const candidateUrls = [RENDER_URL, LOCAL_BASE_URL, LOCALHOST_URL, CURRENT_WIFI_URL, API_BASE_URL];
 
   for (const baseUrl of candidateUrls) {
     try {

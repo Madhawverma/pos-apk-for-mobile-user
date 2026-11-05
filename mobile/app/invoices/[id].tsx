@@ -550,7 +550,7 @@ export default function InvoiceDetailScreen() {
                 <HeaderGlassesLogo color="#04281B" width={38} height={18} />
                 <Text style={styles.docBrandTitle}>श्री गणेश ऑप्टिकल</Text>
                 <Text style={styles.docBrandSubtitle}>SHREE GANESH OPTICAL • SEHORE</Text>
-                <Text style={styles.docAddressText}>ASG Eye Hospital के पास, इंग्लिशिपुरा, सीहोर (म.प्र.) - 466001</Text>
+                <Text style={styles.docAddressText}>ASG Eye Hospital के पास, इंग्लिशपुरा, सीहोर (म.प्र.)</Text>
                 <Text style={styles.docAddressText}>📞 +91 6263732857</Text>
               </View>
 
