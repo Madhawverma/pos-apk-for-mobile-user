@@ -11,7 +11,7 @@ export default function SettingsScreen() {
       <View style={styles.headerCard}>
         <Text style={styles.shopName}>श्री गणेश ऑप्टिकल (Shree Ganesh Optical)</Text>
         <Text style={styles.addr}>ASG Eye Hospital के पास, इंग्लिशिपुरा, सीहोर (म.प्र.) - 466001</Text>
-        <Text style={styles.gst}>GSTIN: 23AAAAA0000A1Z5 • 📞 +91 6263732857</Text>
+        <Text style={styles.gst}>📞 +91 6263732857</Text>
       </View>
 
       <View style={styles.section}>
