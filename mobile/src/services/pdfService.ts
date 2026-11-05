@@ -617,9 +617,9 @@ export const pdfService = {
               <div class="terms-col">
                 <div class="terms-col-heading">• चश्मे की देखभाल के टिप्स (Eyewear Care Tips)</div>
                 <ul class="terms-list">
-                  <li>पानी से बचाएं...</li>
+                  <li>चश्मे को हमेशा दोनों हाथों से पहनें व उतारें</li>
                   <li>लेंस को सॉफ्ट माइक्रोफाइबर कपड़े से ही साफ करें</li>
-                  <li>लेंस को सॉफ्ट माइक्रोफाइबर कपड़े से ही साफ करें</li>
+                  <li>लेंस को कभी भी खुरदरी सतह या नीचे की ओर न रखें</li>
                   <li>चश्मे को हमेशा केस (डिब्बे) में सुरक्षित रखें</li>
                   <li>फ्रेम पर 6 महीने की वारंटी (6 Months warranty on frames, terms apply)</li>
                 </ul>
