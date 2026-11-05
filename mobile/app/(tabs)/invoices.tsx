@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
@@ -9,6 +9,7 @@ import {
   Dimensions,
   Alert,
   Linking,
+  RefreshControl,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -130,22 +131,52 @@ function InvoiceItemVisual({ type }: { type: string }) {
   );
 }
 
-// Filter Tabs
-const filterTabs = [
-  { key: 'all', label: 'All Invoices (256)' },
-  { key: 'paid', label: 'Paid (198)' },
-  { key: 'pending', label: 'Pending (42)' },
-  { key: 'cancelled', label: 'Cancelled (16)' },
-];
-
 export default function InvoicesScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
 
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedFilter, setSelectedFilter] = useState('all');
+  const [storeState, setStoreState] = useState(() => opticalStore.getState());
+  const [refreshing, setRefreshing] = useState(false);
 
-  const allInvoices = opticalStore.getState().invoices.length > 0 ? opticalStore.getState().invoices : mockInvoices;
+  useEffect(() => {
+    // Initial fetch from live MongoDB database
+    opticalStore.syncFromBackend();
+    const unsub = opticalStore.subscribe(() => {
+      setStoreState(opticalStore.getState());
+    });
+    return () => unsub();
+  }, []);
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await opticalStore.syncFromBackend();
+    setRefreshing(false);
+  }, []);
+
+  const allInvoices = storeState.invoices || [];
+
+  // Live Dynamic Counts & Totals
+  const totalCount = allInvoices.length;
+  const paidInvoices = allInvoices.filter((i) => i.status === 'Paid');
+  const paidCount = paidInvoices.length;
+  const paidTotal = paidInvoices.reduce((sum, i) => sum + (Number(i.paidAmount || i.total) || 0), 0);
+
+  const pendingInvoices = allInvoices.filter((i) => i.status === 'Pending' || i.status === 'Partial' || i.status === 'Unpaid');
+  const pendingCount = pendingInvoices.length;
+  const pendingTotal = pendingInvoices.reduce((sum, i) => sum + (Number(i.dueAmount || i.total) || 0), 0);
+
+  const cancelledInvoices = allInvoices.filter((i) => i.status === 'Cancelled');
+  const cancelledCount = cancelledInvoices.length;
+  const cancelledTotal = cancelledInvoices.reduce((sum, i) => sum + (Number(i.total) || 0), 0);
+
+  const filterTabs = [
+    { key: 'all', label: `All Invoices (${totalCount})` },
+    { key: 'paid', label: `Paid (${paidCount})` },
+    { key: 'pending', label: `Pending (${pendingCount})` },
+    { key: 'cancelled', label: `Cancelled (${cancelledCount})` },
+  ];
 
   const filteredInvoices = allInvoices.filter((inv) => {
     // Search query
@@ -158,7 +189,7 @@ export default function InvoicesScreen() {
 
     // Filter status
     if (selectedFilter === 'paid') return inv.status === 'Paid';
-    if (selectedFilter === 'pending') return inv.status === 'Pending';
+    if (selectedFilter === 'pending') return inv.status === 'Pending' || inv.status === 'Partial' || inv.status === 'Unpaid';
     if (selectedFilter === 'cancelled') return inv.status === 'Cancelled';
     return true;
   });
@@ -221,6 +252,7 @@ export default function InvoicesScreen() {
         style={styles.scrollArea}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#0D9488']} />}
       >
         {/* Create Invoice Top Button Row */}
         <View style={styles.topActionRow}>
@@ -240,32 +272,32 @@ export default function InvoicesScreen() {
           {/* Total Invoices */}
           <View style={[styles.metricCard, { backgroundColor: '#F0F9FF' }]}>
             <FileText size={17} color="#2563EB" />
-            <Text style={styles.metricNumber}>256</Text>
+            <Text style={styles.metricNumber}>{totalCount}</Text>
             <Text style={styles.metricLabel}>Total Invoices</Text>
           </View>
 
           {/* Paid */}
           <View style={[styles.metricCard, { backgroundColor: '#ECFDF5' }]}>
             <CheckCircle2 size={17} color="#059669" />
-            <Text style={styles.metricNumber}>198</Text>
+            <Text style={styles.metricNumber}>{paidCount}</Text>
             <Text style={styles.metricLabel}>Paid</Text>
-            <Text style={[styles.metricSubvalue, { color: '#059669' }]}>₹6,85,400</Text>
+            <Text style={[styles.metricSubvalue, { color: '#059669' }]}>{formatCurrency(paidTotal)}</Text>
           </View>
 
           {/* Pending */}
           <View style={[styles.metricCard, { backgroundColor: '#FFF7ED' }]}>
             <Clock size={17} color="#D97706" />
-            <Text style={styles.metricNumber}>42</Text>
+            <Text style={styles.metricNumber}>{pendingCount}</Text>
             <Text style={styles.metricLabel}>Pending</Text>
-            <Text style={[styles.metricSubvalue, { color: '#D97706' }]}>₹1,28,600</Text>
+            <Text style={[styles.metricSubvalue, { color: '#D97706' }]}>{formatCurrency(pendingTotal)}</Text>
           </View>
 
           {/* Cancelled */}
           <View style={[styles.metricCard, { backgroundColor: '#FEF2F2' }]}>
             <XCircle size={17} color="#DC2626" />
-            <Text style={styles.metricNumber}>16</Text>
+            <Text style={styles.metricNumber}>{cancelledCount}</Text>
             <Text style={styles.metricLabel}>Cancelled</Text>
-            <Text style={[styles.metricSubvalue, { color: '#DC2626' }]}>₹38,200</Text>
+            <Text style={[styles.metricSubvalue, { color: '#DC2626' }]}>{formatCurrency(cancelledTotal)}</Text>
           </View>
         </View>
 
