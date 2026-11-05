@@ -27,7 +27,7 @@
         "expo-splash-screen",
         {
           "image": "./assets/splash.png",
-          "resizeMode": "contain",
+          "resizeMode": "cover",
           "backgroundColor": "#04281B"
         }
       ],
@@ -48,6 +48,12 @@
       "eas": {
         "projectId": "85a8a2be-b5f3-45d3-b83f-f2ac60fa899c"
       }
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/85a8a2be-b5f3-45d3-b83f-f2ac60fa899c"
     }
   }
 }
