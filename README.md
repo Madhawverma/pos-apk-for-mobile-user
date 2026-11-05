@@ -187,3 +187,6 @@ npx expo start
 
 ## 📄 License
 This software is developed exclusively for **Shree Ganesh Optical, Sehore**. All rights reserved.
+
+---
+ ## Developed and Maintain by Madhaw Verma ❤️💖
