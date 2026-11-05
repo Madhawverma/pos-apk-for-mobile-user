@@ -45,6 +45,8 @@ export const login = async (req: Request, res: Response): Promise<void> => {
         role: user.role || 'admin',
         mustChangePassword: !!(user as any).mustChangePassword,
         token: 'token_' + Date.now(),
+        sessionExpiresIn: 3600, // 1 hour session valid
+        expiresAt: Date.now() + 3600 * 1000,
       },
     });
   } catch (error: any) {

@@ -41,6 +41,8 @@ const login = async (req, res) => {
                 role: user.role || 'admin',
                 mustChangePassword: !!user.mustChangePassword,
                 token: 'token_' + Date.now(),
+                sessionExpiresIn: 3600, // 1 hour session valid
+                expiresAt: Date.now() + 3600 * 1000,
             },
         });
     }
