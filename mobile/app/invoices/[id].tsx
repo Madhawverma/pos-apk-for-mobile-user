@@ -646,8 +646,7 @@ export default function InvoiceDetailScreen() {
           </View>
           <View style={styles.termsList}>
             <Text style={styles.termItem}>• एक बार बिका हुआ माल वापस नहीं होगा (Goods once sold cannot be returned).</Text>
-            <Text style={styles.termItem}>• चश्मे की वारंटी निर्माता कंपनी के नियमानुसार मान्य होगी।</Text>
-            <Text style={styles.termItem}>• डिलीवरी से पहले चश्मे का नंबर व फिटिंग अवश्य जांच लें।</Text>
+                        <Text style={styles.termItem}>• डिलीवरी से पहले चश्मे का नंबर व फिटिंग अवश्य जांच लें।</Text>
             <Text style={styles.termItem}>• किसी भी असुविधा के लिए 7 दिनों के भीतर संपर्क करें: +91 6263732857</Text>
           </View>
         </View>
