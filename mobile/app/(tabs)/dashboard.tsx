@@ -984,7 +984,7 @@ export default function DashboardScreen() {
               <View style={{ marginLeft: 12 }}>
                 <Text style={styles.profileModalName}>Admin (Store Manager)</Text>
                 <Text style={styles.profileModalShop}>श्री गणेश ऑप्टिकल (Shree Ganesh Optical)</Text>
-                <Text style={styles.profileModalAddress}>ASG Eye Hospital के पास, इंग्लिशिपुरा, सीहोर (म.प्र.)</Text>
+                <Text style={styles.profileModalAddress}>इंग्लिशपुरा, सीहोर (म.प्र.)</Text>
                 <Text style={styles.profileModalPhone}>+91 6263732857</Text>
               </View>
             </View>

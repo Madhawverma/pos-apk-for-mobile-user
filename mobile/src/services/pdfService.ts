@@ -438,7 +438,7 @@ export const pdfService = {
             <img src="${SHREE_GANESH_LOGO_BASE64}" class="logo-img" alt="Shree Ganesh Optical Logo" />
             <div class="shop-title">श्री गणेश ऑप्टिकल / SHREE GANESH OPTICAL</div>
             <div class="shop-sub">चश्मे, लेंस एवं फ्रेम के विक्रेता / Dealer in Eyeglasses, Lenses & Frames</div>
-            <div class="shop-address">ASG Eye Hospital के पास, इंग्लिशपुरा, सीहोर (म.प्र.)<br><strong>📞 संपर्क / Contact: +91 6263732857</strong></div>
+            <div class="shop-address">इंग्लिशपुरा, सीहोर (म.प्र.)<br><strong>📞 संपर्क / Contact: +91 6263732857</strong></div>
             <div style="font-size: 13px; font-weight: 900; margin-top: 6px; letter-spacing: 1px; color: #04281B; text-transform: uppercase; border-top: 1px dashed #cbd5e1; border-bottom: 1px dashed #cbd5e1; padding: 3px 0;">
               कस्टमर बिल रसीद / CASH MEMO / RETAIL INVOICE
             </div>

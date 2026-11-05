@@ -200,7 +200,7 @@ export default function InvoiceDetailScreen() {
     const itemsSummary = items.map((it, idx) => `${idx + 1}. ${it.description} (x${it.qty}) - ${formatCurrency(it.amount)}`).join('\n');
 
     const message = encodeURIComponent(
-      `🙏 *श्री गणेश ऑप्टिकल, सीहोर* 🙏\n_ASG Eye Hospital के पास, इंग्लिशिपुरा, सीहोर (म.प्र.)_\n📞 संपर्क: +91 6263732857\n━━━━━━━━━━━━━━━━━━━━\nनमस्ते *${customerName}* जी! 🙏\n\nआपकी कस्टमर बिल रसीद (Cash Memo):\n• बिल नंबर: *${inv.invoiceNumber}*\n• दिनांक: *${orderDate} ${orderTime}*\n• कुल राशि: *${formatCurrency(totalAmount)}*\n• भुगतान: *${isPaid ? 'PAID ✓' : formatCurrency(paidAmount)}*\n${dueAmount > 0 ? `• शेष राशि (Due): *${formatCurrency(dueAmount)}*\n` : ''}\n📦 *सामान:* \n${itemsSummary}\n━━━━━━━━━━━━━━━━━━━━\nश्री गणेश ऑप्टिकल से खरीदारी के लिए धन्यवाद! 👓✨`
+      `🙏 *श्री गणेश ऑप्टिकल, सीहोर* 🙏\n_इंग्लिशपुरा, सीहोर (म.प्र.)_\n📞 संपर्क: +91 6263732857\n━━━━━━━━━━━━━━━━━━━━\nनमस्ते *${customerName}* जी! 🙏\n\nआपकी कस्टमर बिल रसीद (Cash Memo):\n• बिल नंबर: *${inv.invoiceNumber}*\n• दिनांक: *${orderDate} ${orderTime}*\n• कुल राशि: *${formatCurrency(totalAmount)}*\n• भुगतान: *${isPaid ? 'PAID ✓' : formatCurrency(paidAmount)}*\n${dueAmount > 0 ? `• शेष राशि (Due): *${formatCurrency(dueAmount)}*\n` : ''}\n📦 *सामान:* \n${itemsSummary}\n━━━━━━━━━━━━━━━━━━━━\nश्री गणेश ऑप्टिकल से खरीदारी के लिए धन्यवाद! 👓✨`
     );
     Linking.openURL(`https://wa.me/${phoneWith91}?text=${message}`);
   };
@@ -550,7 +550,7 @@ export default function InvoiceDetailScreen() {
                 <HeaderGlassesLogo color="#04281B" width={38} height={18} />
                 <Text style={styles.docBrandTitle}>श्री गणेश ऑप्टिकल</Text>
                 <Text style={styles.docBrandSubtitle}>SHREE GANESH OPTICAL • SEHORE</Text>
-                <Text style={styles.docAddressText}>ASG Eye Hospital के पास, इंग्लिशपुरा, सीहोर (म.प्र.)</Text>
+                <Text style={styles.docAddressText}>इंग्लिशपुरा, सीहोर (म.प्र.)</Text>
                 <Text style={styles.docAddressText}>📞 +91 6263732857</Text>
               </View>
 
