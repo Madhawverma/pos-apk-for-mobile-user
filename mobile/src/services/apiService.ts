@@ -80,6 +80,8 @@ export const apiService = {
     request<any>('/customers', { method: 'POST', body: JSON.stringify(customer) }),
   updateCustomer: (id: string, customer: any) =>
     request<any>(`/customers/${id}`, { method: 'PUT', body: JSON.stringify(customer) }),
+  deleteCustomer: (id: string) =>
+    request<any>(`/customers/${id}`, { method: 'DELETE' }),
 
   // Orders
   getOrders: () => request<any[]>('/orders'),

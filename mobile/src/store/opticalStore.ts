@@ -185,7 +185,6 @@ export const opticalStore = {
   // Customers
   addCustomer: (newCustomer: Customer) => {
     state.customers = [newCustomer, ...state.customers];
-    mockCustomers.unshift(newCustomer);
 
     // Sync to backend DB
     apiService.createCustomer(newCustomer).catch(() => {});
@@ -196,6 +195,16 @@ export const opticalStore = {
       'customer'
     );
     notify();
+  },
+
+  deleteCustomer: async (customerId: string) => {
+    state.customers = state.customers.filter((c) => c.id !== customerId && c.phone !== customerId);
+    notify();
+    try {
+      await apiService.deleteCustomer(customerId);
+    } catch (e) {
+      console.log('Error deleting customer from server:', e);
+    }
   },
 
   updateCustomerOrders: (customerId: string, orderAmount: number) => {

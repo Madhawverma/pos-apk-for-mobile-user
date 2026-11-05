@@ -30,6 +30,7 @@ import {
   ChevronRight,
   Clock,
   Crown,
+  Trash2,
 } from 'lucide-react-native';
 import { opticalStore } from '../../src/store/opticalStore';
 import { Customer } from '../../src/types/customer';
@@ -133,6 +134,27 @@ export default function CustomersScreen() {
         {
           text: 'View Full Profile & Rx',
           onPress: () => router.push(`/customers/${customer.id}`),
+        },
+        {
+          text: 'Delete Customer',
+          style: 'destructive',
+          onPress: () => {
+            Alert.alert(
+              'Delete Customer',
+              `Are you sure you want to permanently delete ${customer.name}? This cannot be undone.`,
+              [
+                { text: 'Cancel', style: 'cancel' },
+                {
+                  text: 'Delete',
+                  style: 'destructive',
+                  onPress: async () => {
+                    await opticalStore.deleteCustomer(customer.id);
+                    Alert.alert('Deleted', `${customer.name} removed successfully.`);
+                  },
+                },
+              ]
+            );
+          },
         },
         { text: 'Cancel', style: 'cancel' },
       ]
@@ -442,6 +464,30 @@ export default function CustomersScreen() {
                       activeOpacity={0.7}
                     >
                       <Pencil size={12} color="#059669" strokeWidth={2.2} />
+                    </TouchableOpacity>
+
+                    {/* Delete Customer Button */}
+                    <TouchableOpacity
+                      style={[styles.editBtn, { backgroundColor: '#FEE2E2', borderColor: '#FCA5A5' }]}
+                      onPress={() => {
+                        Alert.alert(
+                          'Delete Customer',
+                          `Are you sure you want to delete ${cust.name}?`,
+                          [
+                            { text: 'Cancel', style: 'cancel' },
+                            {
+                              text: 'Delete',
+                              style: 'destructive',
+                              onPress: async () => {
+                                await opticalStore.deleteCustomer(cust.id);
+                              },
+                            },
+                          ]
+                        );
+                      }}
+                      activeOpacity={0.7}
+                    >
+                      <Trash2 size={12} color="#DC2626" strokeWidth={2.2} />
                     </TouchableOpacity>
 
                     {/* 3 Vertical Dots */}

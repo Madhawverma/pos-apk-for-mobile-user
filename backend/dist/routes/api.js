@@ -30,6 +30,7 @@ router.get('/customers', customerController_1.getCustomers);
 router.get('/customers/:id', customerController_1.getCustomerById);
 router.post('/customers', customerController_1.createCustomer);
 router.put('/customers/:id', customerController_1.updateCustomer);
+router.delete('/customers/:id', customerController_1.deleteCustomer);
 // Orders
 router.get('/orders', orderController_1.getOrders);
 router.get('/orders/:id', orderController_1.getOrderById);

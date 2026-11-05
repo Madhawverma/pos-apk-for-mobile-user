@@ -11,6 +11,7 @@ import {
   getCustomerById,
   createCustomer,
   updateCustomer,
+  deleteCustomer,
 } from '../controllers/customerController';
 import {
   getOrders,
@@ -53,6 +54,7 @@ router.get('/customers', getCustomers);
 router.get('/customers/:id', getCustomerById);
 router.post('/customers', createCustomer);
 router.put('/customers/:id', updateCustomer);
+router.delete('/customers/:id', deleteCustomer);
 
 // Orders
 router.get('/orders', getOrders);
