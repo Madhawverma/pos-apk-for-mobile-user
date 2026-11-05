@@ -31,12 +31,8 @@
           "backgroundColor": "#04281B"
         }
       ],
-      "expo-sharing",
-      "expo-updates"
+      "expo-sharing"
     ],
-    "updates": {
-      "url": "https://u.expo.dev/85a8a2be-b5f3-45d3-b83f-f2ac60fa899c"
-    },
     "scheme": "shreeganeshoptical",
     "extra": {
       "shopName": "Shree Ganesh Optical",
