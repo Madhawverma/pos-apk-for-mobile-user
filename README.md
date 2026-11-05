@@ -179,7 +179,7 @@ npx expo start
 ## 👨‍💼 Authorized Store Info
 
 - **Store Name**: श्री गणेश ऑप्टिकल (Shree Ganesh Optical)
-- **Location**: ASG Eye Hospital के पास, इंग्लिशिपुरा, सीहोर (म.प्र.) - 466001
+- **Location**: ASG Eye Hospital के पास, इंग्लिशपुरा, सीहोर (म.प्र.) - 466001
 - **Contact**: +91 6263732857
 - **Authorized Person**: अंकित वर्मा (Ankit Verma)
 
