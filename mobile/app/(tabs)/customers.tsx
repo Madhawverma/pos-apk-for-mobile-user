@@ -31,6 +31,8 @@ import {
   Clock,
   Crown,
   Trash2,
+  Phone,
+  MessageCircle,
 } from 'lucide-react-native';
 import { opticalStore } from '../../src/store/opticalStore';
 import { Customer } from '../../src/types/customer';
@@ -361,114 +363,128 @@ export default function CustomersScreen() {
                   onPress={() => router.push(`/customers/${cust.id}`)}
                   activeOpacity={0.88}
                 >
-                  {/* 1. Left Avatar Circle with Initials */}
-                  <View
-                    style={[
-                      styles.avatarCircle,
-                      { backgroundColor: cust.avatarBg || '#DBEAFE' },
-                    ]}
-                  >
-                    <Text
+                  {/* Top Header Row: Avatar, Customer Details & Badges */}
+                  <View style={styles.cardTopRow}>
+                    <View
                       style={[
-                        styles.avatarText,
-                        { color: cust.avatarColor || '#1D4ED8' },
+                        styles.avatarCircle,
+                        { backgroundColor: cust.avatarBg || '#DBEAFE' },
                       ]}
                     >
-                      {initials}
-                    </Text>
-                  </View>
-
-                  {/* 2. Customer Name, Phone & Location */}
-                  <View style={styles.customerInfoCol}>
-                    <Text style={styles.customerName} numberOfLines={1}>
-                      {cust.name}
-                    </Text>
-                    <Text style={styles.customerPhone}>{cust.phone}</Text>
-                    <View style={styles.locationRow}>
-                      <MapPin size={10} color="#94A3B8" />
-                      <Text style={styles.customerCity}>{cust.city || cust.address || 'Optical Customer'}</Text>
-                    </View>
-                  </View>
-
-                  {/* 3. Status Badges & Last Visit / Spent Stats */}
-                  <View style={styles.customerStatsCol}>
-                    {/* Badges Row */}
-                    <View style={styles.badgesRow}>
-                      {/* Status Badge */}
-                      {(cust.status === 'Regular' || !cust.status) && (
-                        <View style={[styles.statusBadge, { backgroundColor: '#ECFDF5' }]}>
-                          <Text style={[styles.statusText, { color: '#059669' }]}>Regular</Text>
-                        </View>
-                      )}
-                      {cust.status === 'New' && (
-                        <View style={[styles.statusBadge, { backgroundColor: '#EFF6FF' }]}>
-                          <Text style={[styles.statusText, { color: '#2563EB' }]}>New</Text>
-                        </View>
-                      )}
-                      {cust.status === 'Due Checkup' && (
-                        <View style={[styles.statusBadge, { backgroundColor: '#FEE2E2' }]}>
-                          <Text style={[styles.statusText, { color: '#DC2626' }]}>Due Checkup</Text>
-                        </View>
-                      )}
-
-                      {/* Tenure Badge */}
-                      {cust.tenure && (
-                        <View style={styles.tenureBadge}>
-                          <Text style={styles.tenureText}>{cust.tenure}</Text>
-                        </View>
-                      )}
+                      <Text
+                        style={[
+                          styles.avatarText,
+                          { color: cust.avatarColor || '#1D4ED8' },
+                        ]}
+                      >
+                        {initials}
+                      </Text>
                     </View>
 
-                    {/* Last Visit & Total Spent Row */}
-                    <View style={styles.visitSpentRow}>
-                      {/* Last Visit */}
-                      <View style={styles.statSubRow}>
-                        <Calendar size={11} color="#94A3B8" style={{ marginRight: 4 }} />
-                        <View>
-                          <Text style={styles.statLabel}>Last Visit</Text>
-                          <Text style={styles.statValue}>{cust.lastVisit || cust.createdAt || 'Recent'}</Text>
-                        </View>
+                    <View style={styles.customerMainInfo}>
+                      <View style={styles.nameBadgeRow}>
+                        <Text style={styles.customerName} numberOfLines={1}>
+                          {cust.name}
+                        </Text>
+                        {(cust.status === 'Regular' || !cust.status) && (
+                          <View style={[styles.statusBadge, { backgroundColor: '#ECFDF5' }]}>
+                            <Text style={[styles.statusText, { color: '#059669' }]}>Regular</Text>
+                          </View>
+                        )}
+                        {cust.status === 'New' && (
+                          <View style={[styles.statusBadge, { backgroundColor: '#EFF6FF' }]}>
+                            <Text style={[styles.statusText, { color: '#2563EB' }]}>New</Text>
+                          </View>
+                        )}
+                        {cust.status === 'Due Checkup' && (
+                          <View style={[styles.statusBadge, { backgroundColor: '#FEE2E2' }]}>
+                            <Text style={[styles.statusText, { color: '#DC2626' }]}>Due Checkup</Text>
+                          </View>
+                        )}
                       </View>
 
-                      {/* Total Spent */}
-                      <View style={styles.statSubRow}>
-                        <ShoppingBag size={11} color="#94A3B8" style={{ marginRight: 4 }} />
-                        <View>
-                          <Text style={styles.statLabel}>Total Spent</Text>
-                          <Text style={styles.statValue}>{formatCurrency(cust.totalSpent || 0)}</Text>
+                      <View style={styles.subMetaRow}>
+                        <Text style={styles.customerPhone}>{cust.phone}</Text>
+                        <Text style={styles.metaDot}>•</Text>
+                        <View style={styles.locationRow}>
+                          <MapPin size={11} color="#94A3B8" />
+                          <Text style={styles.customerCity} numberOfLines={1}>
+                            {cust.city || cust.address || 'Sehore'}
+                          </Text>
                         </View>
                       </View>
                     </View>
-                  </View>
 
-                  {/* 4. Action Buttons (Eye, Edit, 3 Dots, Chevron) */}
-                  <View style={styles.actionsCol}>
-                    {/* Eye View Rx Button */}
                     <TouchableOpacity
-                      style={styles.eyeBtn}
+                      style={styles.dotsBtn}
+                      onPress={() => handleActionMenu(cust)}
+                      activeOpacity={0.7}
+                      hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                    >
+                      <MoreVertical size={18} color="#64748B" />
+                    </TouchableOpacity>
+                  </View>
+
+                  {/* Middle Stats Divider Row */}
+                  <View style={styles.cardStatsBar}>
+                    <View style={styles.statSubRow}>
+                      <Calendar size={12} color="#64748B" style={{ marginRight: 5 }} />
+                      <Text style={styles.statLabel}>Last Visit:</Text>
+                      <Text style={styles.statValue}> {cust.lastVisit || cust.createdAt || 'Recent'}</Text>
+                    </View>
+
+                    <View style={styles.statSubRow}>
+                      <ShoppingBag size={12} color="#059669" style={{ marginRight: 5 }} />
+                      <Text style={styles.statLabel}>Total Spent:</Text>
+                      <Text style={[styles.statValue, { color: '#059669', fontWeight: '800' }]}>
+                        {' '}{formatCurrency(cust.totalSpent || 0)}
+                      </Text>
+                    </View>
+                  </View>
+
+                  {/* Bottom Action Buttons Row */}
+                  <View style={styles.cardActionsRow}>
+                    {/* Call Button */}
+                    <TouchableOpacity
+                      style={styles.actionPillBtn}
+                      onPress={() => Linking.openURL(`tel:${cust.phone.replace(/\s+/g, '')}`)}
+                      activeOpacity={0.7}
+                    >
+                      <Phone size={13} color="#059669" strokeWidth={2.2} />
+                      <Text style={[styles.actionPillText, { color: '#059669' }]}>Call</Text>
+                    </TouchableOpacity>
+
+                    {/* WhatsApp Button */}
+                    <TouchableOpacity
+                      style={styles.actionPillBtn}
+                      onPress={() => {
+                        const rawDigits = cust.phone.replace(/[^0-9]/g, '');
+                        const phoneWith91 = rawDigits.length === 10 ? `91${rawDigits}` : rawDigits.startsWith('91') ? rawDigits : `91${rawDigits}`;
+                        Linking.openURL(
+                          `https://wa.me/${phoneWith91}?text=Hello%20${encodeURIComponent(
+                            cust.name
+                          )},%20greeting%20from%20Shree%20Ganesh%20Optical!`
+                        );
+                      }}
+                      activeOpacity={0.7}
+                    >
+                      <MessageCircle size={13} color="#2563EB" strokeWidth={2.2} />
+                      <Text style={[styles.actionPillText, { color: '#2563EB' }]}>WhatsApp</Text>
+                    </TouchableOpacity>
+
+                    {/* View Details Button */}
+                    <TouchableOpacity
+                      style={styles.actionPillBtn}
                       onPress={() => router.push(`/customers/${cust.id}`)}
                       activeOpacity={0.7}
                     >
-                      <Eye size={13} color="#2563EB" strokeWidth={2.2} />
-                    </TouchableOpacity>
-
-                    {/* Pencil Edit Button */}
-                    <TouchableOpacity
-                      style={styles.editBtn}
-                      onPress={() =>
-                        Alert.alert('Edit Customer', `Edit details for ${cust.name}`, [
-                          { text: 'Cancel', style: 'cancel' },
-                          { text: 'Edit Info', onPress: () => router.push('/customers/add') },
-                        ])
-                      }
-                      activeOpacity={0.7}
-                    >
-                      <Pencil size={12} color="#059669" strokeWidth={2.2} />
+                      <Eye size={13} color="#475569" strokeWidth={2.2} />
+                      <Text style={[styles.actionPillText, { color: '#475569' }]}>View Rx</Text>
                     </TouchableOpacity>
 
                     {/* Delete Customer Button */}
                     <TouchableOpacity
-                      style={[styles.editBtn, { backgroundColor: '#FEE2E2', borderColor: '#FCA5A5' }]}
+                      style={[styles.actionPillBtn, styles.deleteActionPill]}
                       onPress={() => {
                         Alert.alert(
                           'Delete Customer',
@@ -487,20 +503,9 @@ export default function CustomersScreen() {
                       }}
                       activeOpacity={0.7}
                     >
-                      <Trash2 size={12} color="#DC2626" strokeWidth={2.2} />
+                      <Trash2 size={13} color="#DC2626" strokeWidth={2.2} />
+                      <Text style={[styles.actionPillText, { color: '#DC2626' }]}>Delete</Text>
                     </TouchableOpacity>
-
-                    {/* 3 Vertical Dots */}
-                    <TouchableOpacity
-                      style={styles.dotsBtn}
-                      onPress={() => handleActionMenu(cust)}
-                      activeOpacity={0.7}
-                    >
-                      <MoreVertical size={14} color="#64748B" />
-                    </TouchableOpacity>
-
-                    {/* Chevron Right */}
-                    <ChevronRight size={16} color="#94A3B8" style={{ marginLeft: 2 }} />
                   </View>
                 </TouchableOpacity>
               );
@@ -739,142 +744,153 @@ const styles = StyleSheet.create({
 
   /* Customers List */
   customersList: {
-    gap: 8,
+    gap: 12,
   },
   customerCard: {
     backgroundColor: '#FFFFFF',
-    borderRadius: 12,
-    paddingVertical: 10,
-    paddingHorizontal: 10,
+    borderRadius: 14,
+    padding: 14,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 6,
+    elevation: 2,
+  },
+
+  /* 1. Card Top Row */
+  cardTopRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.04,
-    shadowRadius: 4,
-    elevation: 1,
   },
-
-  /* 1. Avatar Circle */
   avatarCircle: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: 10,
+    marginRight: 12,
   },
   avatarText: {
-    fontSize: 13.5,
+    fontSize: 15,
     fontWeight: '800',
   },
-
-  /* 2. Customer Info */
-  customerInfoCol: {
-    width: '32%',
-    justifyContent: 'center',
-    paddingRight: 4,
+  customerMainInfo: {
+    flex: 1,
+  },
+  nameBadgeRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    flexWrap: 'wrap',
   },
   customerName: {
-    fontSize: 13.5,
+    fontSize: 15,
     fontWeight: '800',
     color: '#0F172A',
+    maxWidth: '70%',
+  },
+  subMetaRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginTop: 4,
   },
   customerPhone: {
-    fontSize: 10.5,
-    color: '#64748B',
-    marginTop: 2,
+    fontSize: 12,
+    color: '#475569',
+    fontWeight: '600',
+  },
+  metaDot: {
+    color: '#94A3B8',
+    fontSize: 12,
   },
   locationRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 3,
-    marginTop: 2,
+    flexShrink: 1,
   },
   customerCity: {
-    fontSize: 10,
-    color: '#94A3B8',
+    fontSize: 11.5,
+    color: '#64748B',
   },
 
-  /* 3. Customer Stats Column */
-  customerStatsCol: {
-    flex: 1,
-    paddingHorizontal: 4,
-  },
-  badgesRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    marginBottom: 6,
-  },
+  /* Status Badges */
   statusBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 7,
+    paddingHorizontal: 8,
     paddingVertical: 2.5,
-    borderRadius: 5,
+    borderRadius: 6,
   },
   statusText: {
-    fontSize: 9.5,
-    fontWeight: '800',
-  },
-  tenureBadge: {
-    backgroundColor: '#FFF1F2',
-    paddingHorizontal: 6,
-    paddingVertical: 2.5,
-    borderRadius: 5,
-  },
-  tenureText: {
-    fontSize: 9.5,
+    fontSize: 10,
     fontWeight: '700',
-    color: '#E11D48',
   },
-  visitSpentRow: {
+
+  /* 2. Middle Stats Bar */
+  cardStatsBar: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    backgroundColor: '#F8FAFC',
+    borderRadius: 8,
+    paddingVertical: 7,
+    paddingHorizontal: 10,
+    marginTop: 10,
+    borderWidth: 1,
+    borderColor: '#F1F5F9',
   },
   statSubRow: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   statLabel: {
-    fontSize: 8.5,
-    color: '#94A3B8',
+    fontSize: 11,
+    color: '#64748B',
+    fontWeight: '500',
   },
   statValue: {
-    fontSize: 10,
-    fontWeight: '800',
-    color: '#0F172A',
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#1E293B',
   },
 
-  /* 4. Actions Column */
-  actionsCol: {
+  /* 3. Bottom Action Buttons Row */
+  cardActionsRow: {
     flexDirection: 'row',
     alignItems: 'center',
+    gap: 8,
+    marginTop: 10,
+    paddingTop: 10,
+    borderTopWidth: 1,
+    borderTopColor: '#F1F5F9',
+  },
+  actionPillBtn: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
     gap: 5,
-    marginLeft: 6,
+    paddingVertical: 7,
+    backgroundColor: '#F1F5F9',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
   },
-  eyeBtn: {
-    width: 26,
-    height: 26,
-    borderRadius: 6,
-    backgroundColor: '#EFF6FF',
-    alignItems: 'center',
-    justifyContent: 'center',
+  actionPillText: {
+    fontSize: 11.5,
+    fontWeight: '700',
   },
-  editBtn: {
-    width: 26,
-    height: 26,
-    borderRadius: 6,
-    backgroundColor: '#ECFDF5',
-    alignItems: 'center',
-    justifyContent: 'center',
+  deleteActionPill: {
+    backgroundColor: '#FEF2F2',
+    borderColor: '#FECACA',
   },
   dotsBtn: {
-    width: 22,
-    height: 26,
+    width: 32,
+    height: 32,
     alignItems: 'center',
     justifyContent: 'center',
+    borderRadius: 6,
   },
 });
