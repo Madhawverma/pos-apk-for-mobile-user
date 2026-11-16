@@ -32,6 +32,9 @@ const login = async (req, res) => {
             });
             return;
         }
+        // Permanent session - Never expires (100 years validity)
+        const ONE_HUNDRED_YEARS_SECONDS = 100 * 365 * 24 * 3600;
+        const expiresAtMs = Date.now() + (ONE_HUNDRED_YEARS_SECONDS * 1000);
         res.json({
             success: true,
             data: {
@@ -40,9 +43,10 @@ const login = async (req, res) => {
                 name: user.name || seed_1.DEFAULT_ADMIN_NAME,
                 role: user.role || 'admin',
                 mustChangePassword: !!user.mustChangePassword,
-                token: 'token_' + Date.now(),
-                sessionExpiresIn: 3600, // 1 hour session valid
-                expiresAt: Date.now() + 3600 * 1000,
+                token: 'token_permanent_' + (user.id || user._id),
+                neverExpires: true,
+                sessionExpiresIn: ONE_HUNDRED_YEARS_SECONDS,
+                expiresAt: expiresAtMs,
             },
         });
     }

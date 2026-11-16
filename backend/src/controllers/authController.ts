@@ -36,6 +36,10 @@ export const login = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
+    // Permanent session - Never expires (100 years validity)
+    const ONE_HUNDRED_YEARS_SECONDS = 100 * 365 * 24 * 3600;
+    const expiresAtMs = Date.now() + (ONE_HUNDRED_YEARS_SECONDS * 1000);
+
     res.json({
       success: true,
       data: {
@@ -44,9 +48,10 @@ export const login = async (req: Request, res: Response): Promise<void> => {
         name: user.name || DEFAULT_ADMIN_NAME,
         role: user.role || 'admin',
         mustChangePassword: !!(user as any).mustChangePassword,
-        token: 'token_' + Date.now(),
-        sessionExpiresIn: 3600, // 1 hour session valid
-        expiresAt: Date.now() + 3600 * 1000,
+        token: 'token_permanent_' + (user.id || user._id),
+        neverExpires: true,
+        sessionExpiresIn: ONE_HUNDRED_YEARS_SECONDS,
+        expiresAt: expiresAtMs,
       },
     });
   } catch (error: any) {
