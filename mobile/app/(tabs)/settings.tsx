@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 import { colors } from '../../src/theme/colors';
+import { authStorage } from '../../src/services/authStorage';
 
 export default function SettingsScreen() {
   const router = useRouter();
@@ -56,7 +57,13 @@ export default function SettingsScreen() {
           onPress={() => {
             Alert.alert('Lock POS', 'Do you want to lock POS terminal?', [
               { text: 'Cancel', style: 'cancel' },
-              { text: 'Lock', onPress: () => router.replace('/(auth)/login') }
+              {
+                text: 'Lock',
+                onPress: async () => {
+                  await authStorage.clearSession();
+                  router.replace('/(auth)/login');
+                },
+              }
             ]);
           }}
         >

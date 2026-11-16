@@ -181,7 +181,7 @@ export default function CustomersScreen() {
           <View style={styles.headerRight}>
             <TouchableOpacity
               style={styles.headerIconBtn}
-              onPress={() => {}}
+              onPress={() => { }}
               activeOpacity={0.7}
             >
               <Search size={19} color="#FFFFFF" strokeWidth={2.2} />

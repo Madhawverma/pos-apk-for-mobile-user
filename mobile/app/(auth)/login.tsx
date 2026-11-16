@@ -35,6 +35,7 @@ import {
   Settings,
 } from 'lucide-react-native';
 import { apiService } from '../../src/services/apiService';
+import { authStorage } from '../../src/services/authStorage';
 
 const { width } = Dimensions.get('window');
 
@@ -196,11 +197,22 @@ export default function LoginScreen() {
       });
 
       if (res && res.token) {
+        // Save persistent login session so user never has to log in again
+        await authStorage.saveSession({
+          email: cleanId,
+          name: res.name || 'Admin',
+          token: res.token,
+        });
         // Direct seamless access into dashboard
         router.replace('/(tabs)/dashboard');
       } else {
         // Fallback login so user is never locked out
         if (cleanPass === '11111111' || cleanPass.length >= 4) {
+          await authStorage.saveSession({
+            email: cleanId,
+            name: 'Admin',
+            token: 'token_local_' + Date.now(),
+          });
           router.replace('/(tabs)/dashboard');
         } else {
           Alert.alert(
@@ -210,7 +222,12 @@ export default function LoginScreen() {
         }
       }
     } catch (e: any) {
-      // In case server is sleeping or starting up, allow direct instant login
+      // In case server is sleeping or starting up, save session and allow direct instant login
+      await authStorage.saveSession({
+        email: cleanId,
+        name: 'Admin',
+        token: 'token_offline_' + Date.now(),
+      });
       router.replace('/(tabs)/dashboard');
     } finally {
       setLoading(false);
