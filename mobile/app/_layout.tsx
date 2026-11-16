@@ -1,12 +1,30 @@
 import React, { useEffect } from 'react';
 import { Stack } from 'expo-router';
+import * as Updates from 'expo-updates';
 import { colors } from '../src/theme/colors';
 import { opticalStore } from '../src/store/opticalStore';
 
 export default function RootLayout() {
   useEffect(() => {
-    // Connect and load fresh data from backend database on app start
+    // 1. Connect and load fresh data from backend database on app start
     opticalStore.syncFromBackend();
+
+    // 2. OTA Live Update Check: automatically download & apply updates silently on launch
+    async function checkForLiveUpdates() {
+      try {
+        if (!__DEV__) {
+          const update = await Updates.checkForUpdateAsync();
+          if (update.isAvailable) {
+            await Updates.fetchUpdateAsync();
+            await Updates.reloadAsync();
+          }
+        }
+      } catch (e) {
+        console.log('[Auto-Update]: Running latest local bundle');
+      }
+    }
+
+    checkForLiveUpdates();
   }, []);
 
   return (
